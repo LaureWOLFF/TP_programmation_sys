@@ -18,9 +18,12 @@ int main (){
 
     while (1){
         write (STDOUT_FILENO, "enseash % ", 10);
-        nbytes = read(STDIN_FILENO, buffer, MAX_COMMANDE_LENGTH); // Reading the command// 1. Éliminer le '\n' (saut de ligne) pour n'avoir que le nom de la commande
-        buffer[nbytes - 1] = '\0'; 
+        nbytes = read(STDIN_FILENO, buffer, MAX_COMMANDE_LENGTH); // Reading the command
+        buffer[nbytes - 1] = '\0'; // Very improtante line to have only the command and to be able to execute the command
 
+
+        // Execution of the commande 
+        
         pid_t pid;
         int status;
 
