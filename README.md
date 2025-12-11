@@ -45,7 +45,7 @@ Remarque: Quan on ne fait qu'appuyer sur la touche entrée cela ne declenche pas
 
 Dans cette partie il faut premièrement modifier le prompt en debu de chaque ligne et réussir à capter le signal transmis entre le différent processus.
 
-#### Recuperation de siganux
+#### Recuperation de signaux
 
 On travaille dans le processus père et on recoit les information de processus fils. 
 les fonctions principales qu'on va utiliser sont wait, WIFEXITED, WEXITSTATUS, WIFSIGNALED et WTERMSIG. 
