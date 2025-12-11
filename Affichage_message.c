@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 
-#define MAX_COMMANDE_LENGTH 1024
+#define MAX_COMMANDE_LENGTH 128
 #define MAX_ARGS 2 
 
 int main (){
