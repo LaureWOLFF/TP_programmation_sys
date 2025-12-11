@@ -13,10 +13,11 @@ int main (){
     ssize_t nbytes; 
 
     const char *welcom_message = "$./enseash \n Bienvenue dans le Shell ENSEA. \n Pour quitter, taper 'exit'. \n";
-    write(STDOUT_FILENO, welcom_message, strlen(welcom_message));
+    write(STDOUT_FILENO, welcom_message, strnlen(welcom_message, 128));
+    write (STDOUT_FILENO, "enseash % \n", 10);
 
     while (1){
-        write (STDOUT_FILENO, "enseash % \n", 10);
+        
     }
 
     return 0;
