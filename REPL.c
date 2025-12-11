@@ -45,11 +45,7 @@ int main (){
                 perror("enseash: waitpid error");  // wait the end of the child
             }
         }
-
-        // if (strncmp(buffer, "exit\n", 5) == 0) {
-        //     write(STDOUT_FILENO, "Fermeture d'enseash.\n", 21);
-        //     break;
-        // }
+        
     }
 
     return 0;
