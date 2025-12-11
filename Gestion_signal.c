@@ -29,10 +29,9 @@ int main (){
         //write(STDOUT_FILENO,"ici",4);
         write(STDOUT_FILENO, "] % ", 4); 
 
-        nbytes = read(STDIN_FILENO, buffer, MAX_COMMANDE_LENGTH); // Reading the command// 1. Éliminer le '\n' (saut de ligne) pour n'avoir que le nom de la commande 
+        nbytes = read(STDIN_FILENO, buffer, MAX_COMMANDE_LENGTH); // Reading the command
 
-        //Exection of a command
-
+        //Execution of a command
         buffer[nbytes - 1] = '\0'; 
 
         pid_t pid;
