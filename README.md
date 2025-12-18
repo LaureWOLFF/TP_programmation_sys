@@ -31,11 +31,36 @@ Modification du prompt Le prompt peut poser problème. J'ai eu une erreur de seg
 ## Compte-rendu de la seance 2
 
 ### Retour sur la question 4: gestion des signaux
+
 Dans le fichier signal1, la gestion des signaux semble fonctionner correctement. En effet l'implementation pour les sorties et les signaux intern fonctionnent de la même manière. Dans ENSEA Shell, on a bien que l'exit vaut 0 si la commande est correctement executée/executable sinon on a un exit qui vaut 1  en cas d'erreur genérale (retour du EXIT_FAILURE de l'exécution). Il est aussi arrivé d'avoir l'exit qui vaux 127, cela correspond à une commande introuvable.
+
+#### Remarque et attention: 
+Pour réussir à visualiser un signal il faut lancer un processsus prennat du temps tel que sleep 100 et dans sun terminal , encore dans enseash le tuer avec pkill -9 ou une autre fonction. Cepenandant cela ne marcher pas.De plus pour pouvoir appeler l'instruction sleep il faut forcement un second argument. Pour cela j'ai modifier mon execution en l'ecrivant ainis: execlp("sh", "sh", "-c", buffer, NULL). ATTENTION, dans cette ligne je fait un appel système se qui n'est pas securisée et pas une pratique de code recommendé car on delaisse le traitement de l'instruction au terminal Linux lui-même.
 
 ### Question 5: Le temps d'éxection
 
+Pour pouvoir calculer la durée d'une exécution on utilise la fonction clock.gettime() de la librairie time.h. Cette fonction est plus précise que la fonction time normale, pouvant aller jusquà la nanoseconde. 
+Gettimme prend en aguments deux paramêtres:
+Le premier paramêtre est une constatnte definnisant le type de clock. Ici on utilise CLOCK_MONOTONIC, c'est à dire un point de départ qui sera toujours le même, pour toutes les itérations du programme peut import la configuration de l'appareil , elle permet de mesuer un intervalle de temps. Le second paramtètre est une structure de données contennat le temps en seconde et celui en nanoseconde. 
+Afin de pouvoir afficher le temps en milliseconde on utilise la relation suivante:
+$$durée_ms = (fin en seconde - debut en seconde) /times 1000 + /frac{fin en nanoseconde - début en nanoseconde}{1000000}$$
+Cela permit de convertir un milliseconde, le temps d'exécution de chaque intrusction.
+
+Pour la visualisation du temps sur la console, on a utilisé la même methode que pour afficher les signaux et les sorties. C'est à dire convertir le nombre en chaine de charctères et le rendre visible par un write.
+
+#### Remarque: 
+quand on execute une commande ouvrant une autre page telle que l'instruction man, le temsp augmente et cela renvoie le temps passé sur cette instruction. Cela prouve que le temps d'exécution est corresctement implémenté et fonctionnel 
+
 ### Question 6:  Une commande complexe (sans un system call)
+Dans les questions précédente on a utililsé un sys call. Cependant cela n'est pas correct donc on va essayer de trouver une autre manière de traiter et d'executer une instruction complexe.
+
+Etape 1: Changement de la fonction d'execution
+la fonction execlp n'est pas recommandais car cela traite une uniquement une liste de paramètres donnés. Ce qui étati faisable acev un unique argument (nom de la commande etait egalment le seu paramêtre) n'est maintenat pls possible. Pour remedier à cela, il faut utilisé la fonction execvp qui permet une gestion dynamique des parmètre. Elle prend un argument un tableau de pointeurs et permet de s'adapter au differente commande que l'utilisateur va entrer.
+
+Etape 2: Modification du buffer
+
+Etape 3: Creation d'un tableau dynamique argv
+
 
 ### Queston 7: Gestion de la redirection STDIN et STDOUT
 
