@@ -27,3 +27,13 @@ Dans cette partie, il faut premièrement modifier le prompt en début de chaque 
 Récupération des signaux On travaille dans le processus père et on reçoit les informations du processus fils. Les fonctions principales que l'on va utiliser sont wait, WIFEXITED, WEXITSTATUS, WIFSIGNALED et WTERMSIG.
 
 Modification du prompt Le prompt peut poser problème. J'ai eu une erreur de segmentation (core fault). Après avoir posé plusieurs write comme témoins pour être sûr que le code fonctionne, on a remarqué que cela venait de la définition de prompt que j'avais instancié comme un simple caractère alors qu'il fallait que ce soit un tableau. Après cela, je n'ai plus eu d'erreur. Cependant, pour le moment, le code ne semble pas exécuter la boucle traitant des retours de fonction ou les signaux.
+
+
+
+les instruction d'affichage sont ecrite dans un fichier,
+wc (word compte) < tous les elements du ficheir deviennent les objet de la commande 
+
+Compte rendu: vendredi 18h30 
+bien netoyyer les codes
+on peut continuer les questions
+expliquer tous les choix d'implement tation (quoi comment, pourquoi fonction et ne fonctionne pas signal et argv, execp) 
