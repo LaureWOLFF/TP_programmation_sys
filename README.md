@@ -31,6 +31,7 @@ Modification du prompt Le prompt peut poser problème. J'ai eu une erreur de seg
 ## Compte-rendu de la seance 2
 
 ### Retour sur la question 4: gestion des signaux
+Dans le fichier signal1, la gestion des signaux semble fonctionner correctement. En effet l'implementation pour les sorties et les signaux intern fonctionnent de la même manière. Dans ENSEA Shell, on a bien que l'exit vaut 0 si la commande est correctement executée/executable sinon on a un exit qui vaut 1  en cas d'erreur genérale (retour du EXIT_FAILURE de l'exécution). Il est aussi arrivé d'avoir l'exit qui vaux 127, cela correspond à une commande introuvable.
 
 ### Question 5: Le temps d'éxection
 
