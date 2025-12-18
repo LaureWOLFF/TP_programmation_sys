@@ -85,8 +85,12 @@ int main (){
         } else if (pid == 0) {
             // child process
             
-            //execlp(buffer, buffer, (char *) NULL); // the output of this function is an int
-            execlp("sh", "sh", "-c", buffer, (char *) NULL);  // adding some parramettre to be able to use more then 1 parameter in the command
+            execlp(buffer, buffer, (char *) NULL); // the output of this function is an int
+
+            /*execlp("sh", "sh", "-c", buffer, (char *) NULL);  
+            /!\ adding some parramettre to be able to use more than 
+            1 parameter in the command but use a system call*/
+
 
             // printf("This line must not be printed \n");
             // printf("%s", buffer);
