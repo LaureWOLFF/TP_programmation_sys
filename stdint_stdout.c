@@ -22,8 +22,7 @@ int int_to_string(int value, char *buffer);
 int main (){
     char buffer[MAX_COMMANDE_LENGTH];
     char *prompt =" "; 
-    char *argv[64]; // It's possible to have 10 parameters in one command
-    char *arg_storage[64][256];
+    char *argv[64]; // It's possible to have 64 parameters in one command
     char *input_file = NULL;
     char *output_file = NULL;
     ssize_t nbytes;
