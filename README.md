@@ -196,9 +196,4 @@ Remarque:
 
 Dans cette partie on ne se preoccupe pas des signaux car l'implementation de l'exécution est deja très complexe. DEplus pour analuyse les signaux il faudrait prendre en compte les deux processus fils et les synchroniser.
 
-Au final mis à part l'erreur dans le prompt (exexit) on a un terminal fonctionnel qui sait gere des instrution simple et complexe mais egalement des redirection du type STDIN, STDOUT et pipe.
-
-Compte rendu: vendredi 18h30 
-bien netoyyer les codes
-on peut continuer les questions
-expliquer tous les choix d'implement tation (quoi comment, pourquoi fonction et ne fonctionne pas signal et argv, execp) 
+Au final mis à part l'erreur dans le prompt (exexit) on a un terminal fonctionnel qui sait gerer des instrutions simples et complexes mais également des redirections du type STDIN, STDOUT et pipe.
