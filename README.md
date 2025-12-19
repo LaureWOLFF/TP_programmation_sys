@@ -121,12 +121,12 @@ Si ce n'est pas la cas on effctue simplement l'execution de arvg et cela signifi
   Etape 2': Gestion du STDOUT
 
   Si output_file n'est pas nul, on crée un entier fd_out , un descripteur du fichier outp_file. On indique qu'on souhaite qu'il soit ouvert en ecriture seulement et que s'il n'existe pas le créer. Cette fonction permet de s'assurer que l'utilisatuer à bien les droits pour ouvrir et modifier le fichier.
-  Apres avoir ouvert en ecriture on utilise la fonction dup2. Cette fonction permet d'ecrire le resulatat de la commande tapée par l'utillisateur dans le fichier. Puis il ne faut pas oublier de fermer le file decriptor (fd)
+  Apres avoir ouvert en ecriture on utilise la fonction dup2. Cette fonction permet d'ecrire le resultat de la commande tapée par l'utillisateur dans le fichier. Puis il ne faut pas oublier de fermer le file decriptor (fd)
   
   Etape 2'': Gestion du STDIN
   
   Si nput_file n'est pas nul, on crée un entier fd_in , un descripteur du fichier, comme pour les gestion d'un STDOUT. On indique qu'on souhaite qu'il soit ouvert en ecriture seulement .Cette fonction permet de s'assurer que l'utilisatuer à bien les droits pour ouvrir et lire le fichier.
-  Après avoir ouvert en lecture on utilise la fonction dup2. Cette fonction permet de lire le contenue de fichier et d'ecrire le resulatat de la commande tapée par l'utillisateur dans le terminal. Puis, come pour la gestion d'un STDOUT il ne faut pas oublier de fermer le file decriptor (fd)
+  Après avoir ouvert en lecture on utilise la fonction dup2. Cette fonction permet de lire le contenue de fichier et d'ecrire le resulatat de la commande tapée par l'utillisateur dans le terminal. Puis, comme pour la gestion d'un STDOUT il ne faut pas oublier de fermer le file decriptor (fd)
 
 Test: 
 
@@ -152,27 +152,51 @@ Le but de cette question est de pouvoir executer deux commande en une ligne et a
 Etape 1: Reperer un pipe type
 
 Comme pour la gestion STDIN et STDOUT, le premier réflexe a été de chercher le symboles d'un pipe type (|) afin d'identifer les instructions particulieres et de pouvoir initialiser les variables qui seront utile dans l'exécution de cette commande particulière.
+ 
+Premieremement cette recherche se place dans le code après la recherche des STDIn et STDOUT et avant le creation de argv. Attet=ntion pour la gestion de cette commande particulière on ne va plus utiliser du tableau argv mais de deux tableau, un nommé pgrep_argv1 qui va pointe l'adresse de la première instruction et un second tableau , pgrep_argv2 contenant la seconde.
 
-Premieremement cette recherche se place dans le code après la recherche des STDIn et STDOUT et avant le creation de argv.
+Pour trouver le symbole,  on utilise de nouveau la fonction strchr,puis si on a trouver |, on le remplace  par \0. puis on separe la commade ecrite par l'utilisatuer, la premirerpartie est le bufer est la second  commande qui va prendre en argument le resultat le la première intrustion. 
+puis on va construit les deux tableaux pgrep_argv1 et pgrep_argv2 avec la fonction strtok. Cette fonction permet de separet les elements d'une liste lorsque qu'en la parcourt elle rencontre un espace correspondant à un vide.
 
-Pour trouver le symbole,  on utilise de nouveau la fonction strchr,puis si on a trouver |, on le remplace  par \0 afin de séparer le buffer.
+Pour être sur que cette part soit effectuée sans problème, le WRITE permet de s'en assurer.
 
 Etape 2: Modification de l'exécution de la commande
 
-Dans cette question il faut complètement restructurer l'exécution des commade. En effet lorsqu'il y a une instruction avec un pipe type il faut generer deux processus fils et plsu qun; Deplus on souhaite garder le terminal actuel fonctionnel donc on realise on boucle if ... else ou si on à bien un ecommade pipe type on realise un code d'execution de la commande particulier et sion on garde la meme structure.
+Dans cette question il faut complètement restructurer l'exécution des commade. En effet lorsqu'il y a une instruction avec un pipe type il faut generer deux processus fils et plsu qun; Deplus on souhaite garder le terminal actuel fonctionnel donc on realise on boucle if ... else ou si on a bien une commande pipe type on réalise un code d'exécution de la commande particulier et sinon on garde la même structure.
 
 Si on a un pipe type:
 
+Etape 2': Creéation d'un pipe (un tube anonyme)
 
+On depart on crée deux file descriptor (en effet, il y en a un pour l'ecriture et un pour la lecture). Pour initialiser le tube, on utilise la fonction pipe. Cela pemettra d'etablir la connection entre les deux intructions
+
+Etape 2": Creation du premier processus fils
+
+on réalise un premier processus fils qui traitrant la prmeier instruction. Premirermeme on ferme le file descriptor de lectude (donc le premier) car on souhaite ecrire (instruction ls) avec la fonction dup2. Elle envoie la sortie de la premiere instruction vers l'extremité d'ecriture du pipe. On force la commande executée à transemettre ses résultat au processus suivant. Attention, après faut il comme même execute la commande contenue dans pgrep_argv1 et fermer le file descriptor utilisé.
+
+Etape 2"': Creation du second processus fils
+
+Une fois le premier processus fini, on retourne dans le processus père et la on fais un second fork() créant n second fils qui va traiter la seconde commande, celle de lecture. Aisi il faut fermet le fermer le second file descriptor et travailler sur le premier, celui ouvert pour le lecture; puis comme pour les premier fils on applique les mêmes instruction, juste en inversant les roles des deux file descriptor et en executant cette fois-ci l'instruction contenue dans pgrep_argv2. 
+
+Attention dans le dup2 la on demande à ce que les resultat soit dirigé vers le terminal donc on utilise STDIN_FILENO.
+
+Etape 2"": Le processus père
+
+Dans le processus père on ferme les deux file director car il ne joue aucun role dans le tube. Cependant c'es danc ce processus qu'on va attendre la fin des deux processus enfant et savoir s'il y a eu un problème et si oui dans le quel des deux.
 
 
 Test: 
-
+Lors des premiers test on avait bien la realisation d'instruction donné par une commade contenant un pype type. Un problème c'est vu sur le temps d'exectuin qui etait aléatoire
 
 Rectification:
 
+Pour regler ce problème, on a initialisé toutes les varable entrant en jeu dans le temps à 0 a chque nouvelle entrée dans la boucle. Ainis il n'y a plus eu de problèmes.
 
 Remarque:
+
+Dans cette partie on ne se preoccupe pas des signaux car l'implementation de l'exécution est deja très complexe. DEplus pour analuyse les signaux il faudrait prendre en compte les deux processus fils et les synchroniser.
+
+Au final mis à part l'erreur dans le prompt (exexit) on a un terminal fonctionnel qui sait gere des instrution simple et complexe mais egalement des redirection du type STDIN, STDOUT et pipe.
 
 Compte rendu: vendredi 18h30 
 bien netoyyer les codes
