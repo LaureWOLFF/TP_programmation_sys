@@ -53,7 +53,7 @@ Pour pouvoir calculer la durée d'une exécution on utilise la fonction clock.ge
 Gettimme prend en aguments deux paramêtres:
 Le premier paramêtre est une constatnte definnisant le type de clock. Ici on utilise CLOCK_MONOTONIC, c'est à dire un point de départ qui sera toujours le même, pour toutes les itérations du programme peut import la configuration de l'appareil , elle permet de mesuer un intervalle de temps. Le second paramtètre est une structure de données contennat le temps en seconde et celui en nanoseconde. 
 Afin de pouvoir afficher le temps en milliseconde on utilise la relation suivante:
-$$durée_ms = (fin en seconde - debut en seconde) /times 1000 + /frac{fin en nanoseconde - début en nanoseconde}{1000000}$$
+$$durée ms = (fin en seconde - debut en seconde) * 1000 + (fin en nanoseconde - début en nanoseconde)/1000000$$
 Cela permit de convertir un milliseconde, le temps d'exécution de chaque intrusction.
 
 Pour la visualisation du temps sur la console, on a utilisé la même methode que pour afficher les signaux et les sorties. C'est à dire convertir le nombre en chaine de charctères et le rendre visible par un write.
@@ -97,13 +97,82 @@ Ce bug vient du fait qu'on n'a pas réinitialisé le tableau argv à chaque bouc
 Cette fonction permet de remettre à zéro ce le tableau argv. 
 
 ### Queston 7: Gestion de la redirection STDIN et STDOUT
---> parker du syst call 
-les instruction d'affichage sont ecrite dans un fichier,
-wc (word compte) < tous les elements du ficheir deviennent les objet de la commande 
+
+Le but de cette question est de pouvoir créer un fichier et de le manipuler avec des commande et les signes > ou <  afin d'ecrire dedans (STDOUT) ou de le lire (STDIN). Cette question revient de faire du traitement de fichier. Il faut dans un premier temps  repérer c'est simbole puis dans le proccessus orienté le code afonc d'executer ce que l'utilasteur attend ce qui diffèrent en fonction de STOUT et STDIN. Pour cette gestion de fichier,  on va creer de tableaux de pointeur , initatilisés sur rien au début :
+- input_file : c'est pour les gestion de STDIN,, on prend les éléments du fichier comme instruction
+- output_file: c'est pour les gestion de STDOUT, on utilise un fichier (ou on le creer mais un peux plus compliqué avec les permission ) pour y ecrire l'instructions que l'utilisatuer à demander (fait office du terminat=l)
+
+Etape 1: Reperer un STDIN ou STDOUT
+
+Le premier réflexe a été de chercher les symboles de de STDIN et STDOUT afonc d'identifer les instruction particulier et de pouvoir initialiser les variables qui seront utile dans l'exécution du processus du fil.
+
+Premieremement cette recherche se place dans le code après la modification du bufffer où on remplace le retour chariot pas \0 et avant le creation de argv.
+
+Pour trouver ces symboles on utilise la fonction strchr, elle permet de parcourir le buffer à la recherche d'un caractère prcie et renvoie 0 si ce caractère n'est pas dans la liste.
+
+Si on a touvé < ou > ,on remplace ce symbole par \0 afin de separer le buffer puis on initialase output_file si c'est un STDOUT ou input_file si c'est c'est STDIN. Pour etre sur que ce pointeur pointe vers le fichier à manipuler on fais une boucle while pour incrémenter le pointeur jusqu'au nom du fichier.
+
+Etape 2: Modification du processus fils
+
+Dans le processu du fils apres le fork() on verifie si output_file ou input_file n'est pas null.
+
+Si ce n'est pas la cas on effctue simplement l'execution de arvg et cela signifie que l'utilaseur souhaite executer une fonction "classique", c'est a dire avec inscription dans le terminal et sans factuer exterieur (fichier).
+
+  Etape 2': Gestion du STDOUT
+
+  Si output_file n'est pas nul, on crée un entier fd_out , un descripteur du fichier outp_file. On indique qu'on souhaite qu'il soit ouvert en ecriture seulement et que s'il n'existe pas le créer. Cette fonction permet de s'assurer que l'utilisatuer à bien les droits pour ouvrir et modifier le fichier.
+  Apres avoir ouvert en ecriture on utilise la fonction dup2. Cette fonction permet d'ecrire le resulatat de la commande tapée par l'utillisateur dans le fichier. Puis il ne faut pas oublier de fermer le file decriptor (fd)
+  
+  Etape 2'': Gestion du STDIN
+
+    Si input_file n'est pas nul, on crée un entier fd_in , un descripteur du fichier, comme pour les gestion d'un STDOUT. On indique qu'on souhaite qu'il soit ouvert en ecriture seulement .Cette fonction permet de s'assurer que l'utilisatuer à bien les droits pour ouvrir et lire le fichier.
+  Après avoir ouvert en lecture on utilise la fonction dup2. Cette fonction permet de lire le contenue de fichier et d'ecrire le resulatat de la commande tapée par l'utillisateur dans le terminal. Puis, come pour la gestion d'un STDOUT il ne faut pas oublier de fermer le file decriptor (fd)
+
+Test: 
+
+Lors du premier test on a une erreur segmantation fault au niveat du STDOUT. Pour régler cela on a plusieurs plusieurs WRITE afin de relever la ligne posant problème.
+
+Après l'implementatin des processus no avait un problème avec la gestion STDIN. 
+
+Rectification:
+
+Les differentes erreurs qu' on a pu observées (Segmentation core fault ou commande inconnue) sont majoritairement du à des compier coller entre les codes de STDIN et STDOUT et où on à mal modifié les variables tels que dup2(fd_out, STDOUT_FILENO) en  dup2(fd_in, STDOUT_FILENO).
+
+Après une relecture rigoureuse la gestion des fichier par STDIN et STDOUT fonctionne bien mais dans le prompt du shell exit est devenu exexit et on ne comprend pas comment c'est possible et on n'a pas sut le résoudre. Mis à part cela, le shelle est parfaitement fonctionel, il traite à la fois les commande simple, complexe et les gestin SDTIN et STDOUT.
+
+Remarque:
+
+L'implémentation de la fonction open est incomplete donc si le fichier n'est pas crée avant, aucune personne n'a la permission de l'ouvrir en ecriture/ en lecture donc cela crée un bug. Pour resoudre cela il faut ajouter 0644 (6: pour le propriétatire il peut ecrire et lire, et 4 pour le groupe et les autres pour avoir y accès que en lecture). 
+
 
 ### Question 8: Gestion de la redirection 
 
+Le but de cette question est de pouvoir executer deux commande en une ligne et avoir un resultat final, celuui qui interrese l'utilisateur. Pour cela on crer u pipe, un tube anonyme entre deux processus. C'est ce qu'on va essyer de réaliser dans cette partie.
 
+Etape 1: Reperer un pipe type
+
+Comme pour la gestion STDIN et STDOUT, le premier réflexe a été de chercher le symboles d'un pipe type (|) afin d'identifer les instructions particulieres et de pouvoir initialiser les variables qui seront utile dans l'exécution de cette commande particulière.
+
+Premieremement cette recherche se place dans le code après la recherche des STDIn et STDOUT et avant le creation de argv.
+
+Pour trouver le symbole,  on utilise de nouveau la fonction strchr,puis si on a trouver |, on le remplace  par \0 afin de séparer le buffer.
+
+Etape 2: Modification de l'exécution de la commande
+
+Dans cette question il faut complètement restructurer l'exécution des commade. En effet lorsqu'il y a une instruction avec un pipe type il faut generer deux processus fils et plsu qun; Deplus on souhaite garder le terminal actuel fonctionnel donc on realise on boucle if ... else ou si on à bien un ecommade pipe type on realise un code d'execution de la commande particulier et sion on garde la meme structure.
+
+Si on a un pipe type:
+
+
+
+
+Test: 
+
+
+Rectification:
+
+
+Remarque:
 
 Compte rendu: vendredi 18h30 
 bien netoyyer les codes
