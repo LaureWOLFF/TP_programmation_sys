@@ -8,17 +8,27 @@ On définit un tableau de caractères (buffer) de 128 octets. Cela correspondra 
 
 ### Question 2 : REPL
 
-Étape 1 : Lire une commande La fonction read permet de récupérer la commande écrite dans le terminal et de déterminer sa longueur.
+Étape 1 : Lire une commande 
 
-Étape 2 : Exécuter la commande Pour exécuter une fonction, il faut commencer par scinder un processus en deux. Dans le processus enfant, on exécute la commande qui est contenue dans le buffer. Attention : La commande exec se décline en plusieurs variantes. En fonction de l'ajout de deux autres lettres, la fonction va nécessiter différents paramètres. Dans notre cas, on a choisi la fonction execlp qui ne demande que le fichier (et pas le chemin) ainsi que les différents arguments (ici le buffer contenant la commande et rien d'autre, d'où le (char *) NULL). Cependant, cela a posé des problèmes lors de la compilation. Pour les résoudre, il ne faut pas oublier d'enlever le dernier caractère du buffer : \n. Ce dernier caractère rend impossible la compréhension d'une commande par le noyau et, lors de l'exécution du terminal, on se retrouve avec uniquement des commandes dites inconnues par le terminal. Remarque : Le choix de la fonction execlp permet de faire fonctionner le shell lorsqu'il n'y a aucun argument dans la commande, mais cela pourra poser problème plus tard.
+La fonction read permet de récupérer la commande écrite dans le terminal et de déterminer sa longueur.
 
-Étape 3 : La boucle Pour que le terminal soit fonctionnel, il faut mettre dans une boucle while infinie, au minimum, la lecture de la commande et son exécution. Ainsi, on peut entrer différentes commandes les unes à la suite des autres et avoir un terminal fonctionnel.
+Étape 2 : Exécuter la commande 
+
+Pour exécuter une fonction, il faut commencer par scinder un processus en deux. Dans le processus enfant, on exécute la commande qui est contenue dans le buffer. Attention : La commande exec se décline en plusieurs variantes. En fonction de l'ajout de deux autres lettres, la fonction va nécessiter différents paramètres. Dans notre cas, on a choisi la fonction execlp qui ne demande que le fichier (et pas le chemin) ainsi que les différents arguments (ici le buffer contenant la commande et rien d'autre, d'où le (char *) NULL). Cependant, cela a posé des problèmes lors de la compilation. Pour les résoudre, il ne faut pas oublier d'enlever le dernier caractère du buffer : \n. Ce dernier caractère rend impossible la compréhension d'une commande par le noyau et, lors de l'exécution du terminal, on se retrouve avec uniquement des commandes dites inconnues par le terminal. Remarque : Le choix de la fonction execlp permet de faire fonctionner le shell lorsqu'il n'y a aucun argument dans la commande, mais cela pourra poser problème plus tard.
+
+Étape 3 : La boucle 
+
+Pour que le terminal soit fonctionnel, il faut mettre dans une boucle while infinie, au minimum, la lecture de la commande et son exécution. Ainsi, on peut entrer différentes commandes les unes à la suite des autres et avoir un terminal fonctionnel.
 
 ### Question 3 : La sortie du terminal
 
-Premier moyen de sortie : exit Pour pouvoir sortir du terminal quand on tape exit, on crée une boucle if avec comme test : si la commande contenue dans le buffer vaut "exit", alors on sort de la boucle infinie et le main retourne 0 (équivalent à un EXIT_SUCCESS). De plus, comme pour la question 1, on crée un message fixe que l'on envoie à l'utilisateur grâce à la fonction write.
+Premier moyen de sortie : exit 
 
-Second moyen : le contrôle D Ce moyen est un peu plus délicat à mettre en place car, premièrement, il faut comprendre quelle est l'action du contrôle D dans un terminal. Dans un terminal Linux, le contrôle D envoie le signal EOF (End Of File) au programme en cours d'exécution. Cela revient à faire le test que la taille du buffer est nulle. Dans ce cas-là, on envoie un nouveau message à l'utilisateur puis on sort de la boucle infinie. Remarque : Quand on ne fait qu'appuyer sur la touche Entrée, cela ne déclenche pas l'interruption car le buffer est alors composé de \n\n ; donc, même après le retrait d'un \n, nbyte ne sera pas nul.
+Pour pouvoir sortir du terminal quand on tape exit, on crée une boucle if avec comme test : si la commande contenue dans le buffer vaut "exit", alors on sort de la boucle infinie et le main retourne 0 (équivalent à un EXIT_SUCCESS). De plus, comme pour la question 1, on crée un message fixe que l'on envoie à l'utilisateur grâce à la fonction write.
+
+Second moyen : le contrôle D 
+
+Ce moyen est un peu plus délicat à mettre en place car, premièrement, il faut comprendre quelle est l'action du contrôle D dans un terminal. Dans un terminal Linux, le contrôle D envoie le signal EOF (End Of File) au programme en cours d'exécution. Cela revient à faire le test que la taille du buffer est nulle. Dans ce cas-là, on envoie un nouveau message à l'utilisateur puis on sort de la boucle infinie. Remarque : Quand on ne fait qu'appuyer sur la touche Entrée, cela ne déclenche pas l'interruption car le buffer est alors composé de \n\n ; donc, même après le retrait d'un \n, nbyte ne sera pas nul.
 
 ### Question 4 : Gestion des signaux
 
@@ -52,18 +62,42 @@ Pour la visualisation du temps sur la console, on a utilisé la même methode qu
 quand on execute une commande ouvrant une autre page telle que l'instruction man, le temsp augmente et cela renvoie le temps passé sur cette instruction. Cela prouve que le temps d'exécution est corresctement implémenté et fonctionnel 
 
 ### Question 6:  Une commande complexe (sans un system call)
-Dans les questions précédente on a utililsé un sys call. Cependant cela n'est pas correct donc on va essayer de trouver une autre manière de traiter et d'executer une instruction complexe.
+Dans les questions précédente on a utililsé un sys call. Cependant cela n'est pas correct donc on va essayer de trouver une autre manière de traiter et d'exécuter une instruction complexe.
 
-Etape 1: Changement de la fonction d'execution
-la fonction execlp n'est pas recommandais car cela traite une uniquement une liste de paramètres donnés. Ce qui étati faisable acev un unique argument (nom de la commande etait egalment le seu paramêtre) n'est maintenat pls possible. Pour remedier à cela, il faut utilisé la fonction execvp qui permet une gestion dynamique des parmètre. Elle prend un argument un tableau de pointeurs et permet de s'adapter au differente commande que l'utilisateur va entrer.
+Etape 1: Modification du buffer et création d'un tableau d'argument argv (v pour vecteurs)
 
-Etape 2: Modification du buffer
+Avec une commande complexe, le buffer devient également plus complexe, en effet il y a des espace, plusieurs instruction/paramètres donc il faut pouvoir construire un tableau pouvant prendre un nombre aléatoire (inférieur à une limite qu'on a posé au debut 10 puis 64), le argv.
 
-Etape 3: Creation d'un tableau dynamique argv
+Initialement,il faut toujours en un  retour chariot à la fin d'une séance d'instruction donc comme dans la question 2 il faut l'enlever. Cependant on a choisi une autre méthode: buffer[strcspn(buffer, "\n")] = '\0';
+La fonction strcspn permet de renvoiyer l'indice de buffer où se trouve le caractère \n, autrement dit à la fin de l'instruction car il est généré par la touche entréee. Bien que la première instruction soit toujours valable, elle est moins précise et en cas d'une mauvaise intruction/manipulation dans le code il est possible que buffer[nbytes - 1] pointe nul part (si le buffer devient nul avant).
 
+Une fois qu'on a une chaine de caractère sans \n, on peut essayer de decouper le buffer pour créer notre tableau de paramètre qu'on appelle argv. Pour cela on introduit quelques variables pour le construire: 
+- un entier: initilalisé à 0 il permet compter la longueur de ce tableau (le nombre de paramètre) et servira d'indice dans ce tableau lors de sa construction
+- deux pointeurs: l'un initialisé sur le debut de buffer et un autre pour l'instant vide mais qui pointera vers la fin de l'argument.
+
+On réalise un boucle while pour reperer les espaces afin de délimiter un argument. et on initialise argv_end au niveau de l'espace et on le remplace par \0.
+En parcourant cette partie du buffer (entre argv_start et argv_end et tant que argv-start ne voit pas \0, l'ancien espace) on copit l'adresse pointé par argv_start dans le tableau dynamiqe grace à l'indice argv-count. Puis on modifie argv_start pour qu'il point sur l'addres suivante que celle de la fin de cette instruction à savoir argv_end.
+
+Attention, cella permet tous les paramètres ayant un espace à la fin donc il faut gérer le dernier paramètre hors de cette boucle. Pour cela on verifie que le contenu de argv_start ne vaut pas \0 (remplacement du retour chariot) et que la limite allouer au tableau n'est pas déja atteinte (c'est pour cela qu'on a pris un nombre d'arguments limite important). Puis on proceède de la mème manière. 
+
+Attention, à la fin il faut ajouter NULL à la fin du tableau pour pouvoir utiliser la fonction d'execution execvp. 
+
+Etape 2: Changement de la fonction d'execution 
+
+La fonction execlp n'est pas recommandais car cela traite une uniquement une liste de paramètres donnés. Ce qui étati faisable acev un unique argument (nom de la commande etait egalment le seu paramêtre) n'est maintenat pls possible. Pour remedier à cela, il faut utilisé la fonction execvp qui permet une gestion dynamique des parmètre. Elle prend un argument un tableau de pointeurs et permet de s'adapter au differente commande que l'utilisateur va entrer. 
+
+Premier test:
+
+Lors du premier test, on a reussit d'effectuer plusieures instructions simple mais seulement une seule complexe.  
+
+Rectification: 
+
+Ce bug vient du fait qu'on n'a pas réinitialisé le tableau argv à chaque boucle donc cela bloquer le shell et resortait une erreur d'execution car la combinaision des différentes instruction est inconnue pour le noyau linux. Pour resoudre cela, on ah=joute une ligne juste avant la création du tableau: memset (argv, 0, sizeof(argv));
+
+Cette fonction permet de remettre à zéro ce le tableau argv. 
 
 ### Queston 7: Gestion de la redirection STDIN et STDOUT
-
+--> parker du syst call 
 les instruction d'affichage sont ecrite dans un fichier,
 wc (word compte) < tous les elements du ficheir deviennent les objet de la commande 
 
