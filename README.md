@@ -124,8 +124,8 @@ Si ce n'est pas la cas on effctue simplement l'execution de arvg et cela signifi
   Apres avoir ouvert en ecriture on utilise la fonction dup2. Cette fonction permet d'ecrire le resulatat de la commande tapée par l'utillisateur dans le fichier. Puis il ne faut pas oublier de fermer le file decriptor (fd)
   
   Etape 2'': Gestion du STDIN
-
-    Si input_file n'est pas nul, on crée un entier fd_in , un descripteur du fichier, comme pour les gestion d'un STDOUT. On indique qu'on souhaite qu'il soit ouvert en ecriture seulement .Cette fonction permet de s'assurer que l'utilisatuer à bien les droits pour ouvrir et lire le fichier.
+  
+  Si nput_file n'est pas nul, on crée un entier fd_in , un descripteur du fichier, comme pour les gestion d'un STDOUT. On indique qu'on souhaite qu'il soit ouvert en ecriture seulement .Cette fonction permet de s'assurer que l'utilisatuer à bien les droits pour ouvrir et lire le fichier.
   Après avoir ouvert en lecture on utilise la fonction dup2. Cette fonction permet de lire le contenue de fichier et d'ecrire le resulatat de la commande tapée par l'utillisateur dans le terminal. Puis, come pour la gestion d'un STDOUT il ne faut pas oublier de fermer le file decriptor (fd)
 
 Test: 
